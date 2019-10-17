@@ -1,0 +1,25 @@
+{
+  "name": "rss-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.8.2",
+    "koa-body": "^4.1.1",
+    "mongodb": "^3.3.2",
+    "rss-parser": "^3.7.2",
+    "saslprep": "^1.0.3",
+    "socks-proxy-agent": "^4.0.2",
+    "telegraf": "^3.32.0"
+  },
+  "botToken": "936117920:AAGC-8IHhxnN3-7k9QePXZPRTYhXKL4UN-M",
+  "socks5": "185.213.26.165:1080",
+  "url": "mongodb://John:Jooohn@localhost:27017/rss-bot-test",
+  "intervalTime": 10000
+}

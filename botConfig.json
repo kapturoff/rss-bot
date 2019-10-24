@@ -1,5 +1,6 @@
 {
   "botToken": "BOT_TOKEN",
+  "useProxy": false,
   "socks5": "SOCKS5_PROXY",
   "mongoURL": "URL_TO_YOUR_MONGODB_INSTANCE",
   "dbName": "DATABASE_NAME",

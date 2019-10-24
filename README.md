@@ -21,4 +21,6 @@ npm start
 In default case, bot checks the updates on RSS-channels every 30 minutes. By the way, this parameter might be 
 changed by editing field "intervalTime" in botConfig.json
 
+---
+
 _[in development]_

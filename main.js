@@ -1,16 +1,16 @@
-const config = require('./package.json')
+const config = require('./botConfig.json')
 const mongoAdapter = require('./mongo')
 const bot = require('./bot')
-const rssWatcher = require('./rssWatcher')
+const messageSender = require('./messageSender')
 
 let lastParsingTime = 1571330786279
 
-const db = mongoAdapter(config.url, config.dbName)
+const db = mongoAdapter(config.mongoURL, config.dbName)
 
 const mainInterval = setInterval(
-	rssWatcher(bot, db, lastParsingTime),
+	messageSender(bot, db, lastParsingTime),
 	config.intervalTime
-) // every 30 minutes
+)
 
 bot.launch()
 

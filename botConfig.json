@@ -1,0 +1,7 @@
+{
+  "botToken": "BOT_TOKEN",
+  "socks5": "SOCKS5_PROXY",
+  "mongoURL": "URL_TO_YOUR_MONGODB_INSTANCE",
+  "dbName": "DATABASE_NAME",
+  "intervalTime": 1800000
+}

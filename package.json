@@ -17,9 +17,5 @@
     "saslprep": "^1.0.3",
     "socks-proxy-agent": "^4.0.2",
     "telegraf": "^3.32.0"
-  },
-  "botToken": "936117920:AAGC-8IHhxnN3-7k9QePXZPRTYhXKL4UN-M",
-  "socks5": "185.213.26.165:1080",
-  "url": "mongodb://John:Jooohn@localhost:27017/rss-bot-test",
-  "intervalTime": 10000
+  }
 }

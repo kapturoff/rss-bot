@@ -1,47 +1,94 @@
 const Telegraf = require('telegraf')
 const SocksProxyAgent = require('socks-proxy-agent')
+const session = require('telegraf/session')
+const Stage = require('telegraf/stage')
+const Scene = require('telegraf/scenes/base')
+const stage = new Stage()
+const Markup = require('telegraf/markup')
+const Extra = require('telegraf/extra')
+const config = require('./botConfig.json')
 
-const bot = new Telegraf(require('./package.json').botToken, {
+const bot = new Telegraf(config.botToken, {
 	telegram: {
-		agent: new SocksProxyAgent(
-			`socks://${require('./package.json').socks5}`
-		),
+		agent: new SocksProxyAgent(`socks://${config.socks5}`),
 	},
 })
 
 const mongoAdapter = require('./mongo')
-const db = mongoAdapter(
-	'mongodb://John:Jooohn@localhost:27017/rss-bot-test',
-	'rss-bot-test'
-)
+const db = mongoAdapter(config.mongoURL, config.dbName)
 
-bot.start(ctx =>
-	ctx.reply(
-		'Welcome!\n\nIf you want to add new RSS-channel, write: /addchannel [url]\nIf you want to unsub from channel, write /unsub [url]\n\nHave a good one!'
+function createMarkupKeyboard(feedNames) {
+	const buttons = feedNames.map(feed =>
+		Markup.callbackButton(feed, 'unsub-' + feed)
+	)
+	return Markup.inlineKeyboard(buttons)
+}
+
+const addChannelScene = new Scene('addchannel')
+addChannelScene.enter(ctx =>
+	ctx.replyWithMarkdown(
+		'_OK, now you have to send URL of RSS-channel that you want to listen!\nIf you don\'t want to add channel type /cancel_'
 	)
 )
-
-bot.command('addchannel', async (ctx) => {
-	const url = ctx.message.text.replace(/\/addchannel ?/, '')
-	if (url) {
-		let subscribed = await db.addUserToFeed(url, ctx.message.chat.id);
-		if (subscribed) {
-			ctx.reply('👌 ' + url + ' was added to your list!')
-		} else {
-			ctx.reply('❌ You had already subscribed to ' + url)
-		}
+addChannelScene.leave(ctx => ctx.reply('👌 Done!'))
+addChannelScene.command('cancel', Stage.leave())
+addChannelScene.on('text', async ctx => {
+	if (ctx.message.text.match(/https?:\/\/.*\..*/)) {
+		let subscribed = await db.subUserToFeed(
+			ctx.message.text,
+			ctx.message.chat.id
+		)
+		ctx.replyWithMarkup(
+			subscribed
+				? '_You have successfully subscribed to this channel!_'
+				: '_OK, but you had already been subscribed to this RSS-channel earlier_'
+		)
+		Stage.leave()(ctx)
 	} else {
-		ctx.reply('❌ Your message does not cointain an URL!')
+		ctx.reply("❌ It wasn't an URL!")
 	}
 })
 
-bot.command('unsub', async (ctx) => {
-	const url = ctx.message.text.replace(/\/unsub ?/, '')
-	if (url) {
-		db.removeUserFromFeed(url, ctx.message.chat.id).then(v => console.log("removed"))
-		ctx.reply('🗑 ' + url + ' was removed from your list!')
+stage.command('cancel', Stage.leave())
+stage.register(addChannelScene)
+
+bot.use(session())
+bot.use(stage.middleware())
+
+bot.start(async ctx => {
+	const subscribedChannels = await db.getSubsOfUser(ctx.message.chat.id)
+	const subsCombined = subscribedChannels.length 
+		? subscribedChannels.reduce((acc, feedName) => acc + '\n' + feedName, '_~ Channels that you listen now: _')
+		: "❌ You didn't subscribe to any channel yet!"
+	ctx.replyWithMarkdown(
+		'*Welcome!*\n\nThe bot checks out RSS-channels that you subscribed to every 30 minutes and if they have the updates — sends updates to you! \n\nIf you want to subscribe to new RSS-channel, write /addchannel \nIf you want to unsubscribe from channel that you had already been listening, type /unsub\n\n'+subsCombined+'\n\n_Have a good one!_'
+	)
+})
+
+bot.command('addchannel', Stage.enter('addchannel'))
+
+bot.command('unsub', async ctx => {
+	const subscribedChannels = await db.getSubsOfUser(ctx.message.chat.id)
+
+	if (subscribedChannels.length) {
+		ctx.replyWithMarkdown(
+			'_Tap to the button to unsubscribe._\n~ List of the RSS-channels that you subscribed to:',
+			Extra.markup(createMarkupKeyboard(subscribedChannels))
+		)
 	} else {
-		ctx.reply('❌ Your message does not cointain an URL!')
+		ctx.reply('❌ Your subscribtion list is empty!')
+	}
+})
+
+bot.on('callback_query', async ctx => {
+	if (ctx.callbackQuery && ctx.callbackQuery.data.startsWith('unsub-')) {
+		const feedName = ctx.callbackQuery.data.replace('unsub-', '')
+		const result = await db.unsubUserFromFeed(
+			feedName,
+			ctx.callbackQuery.message.chat.id
+		)
+
+		ctx.reply(result ? '👌 Unsubscribed!' : '❌ You\'ve already unsubscribed from that channel!')
 	}
 })
 

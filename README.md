@@ -7,16 +7,21 @@ _To create instance of this bot:_
 ```sh
 git clone git@github.com:kapturoff/rss-bot.git
 ```
-2. Rebuild files in 'src':
+2. Go to the just cloned project directory:
+```sh
+cd rss-bot
+```
+3. Rebuild files in 'src':
 ```sh
 npm run build
 ```
-3. Open your code editor and add your settings to botConfig.json _(as example: token of your bot, database name, etc...)_
-4. Open your terminal again and type the following:
+4. Open your code editor and add your settings to botConfig.json _(as example: token of your bot, database name, etc...)_
+5. Open your terminal again and type the following:
 ```sh
 npm start
 ```
-5. Almost done! Open a dialog with your bot in Telegram and type "/start"!
+6. Almost done! Open a dialog with your bot in Telegram and type "/start"!
+
 
 In default case, bot checks the updates on RSS-channels every 30 minutes. By the way, this parameter might be 
 changed by editing field "intervalTime" in botConfig.json

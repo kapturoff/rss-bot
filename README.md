@@ -1,6 +1,6 @@
 # rss-bot
 > Bot which make allow you to read RSS-channels in Telegram!
---
+---
 
 _To create instance of this bot:_
 1. Open your terminal and clone this repository using:

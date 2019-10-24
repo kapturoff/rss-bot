@@ -11,8 +11,8 @@ git clone git@github.com:kapturoff/rss-bot.git
 ```sh
 npm run build
 ```
-3. Add your settings to botConfig.json (as example: token of your bot, database name, etc...)
-4. Type
+3. Open your code editor and add your settings to botConfig.json _(as example: token of your bot, database name, etc...)_
+4. Open your terminal again and type the following:
 ```sh
 npm start
 ```
